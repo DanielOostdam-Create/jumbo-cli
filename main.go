@@ -15,7 +15,7 @@ import (
 
 const (
 	graphqlURL    = "https://www.jumbo.com/api/graphql"
-	clientName    = "JUMBO_MOBILE-orders"
+	clientName    = "jumbo-web"
 	clientVersion = "30.14.0"
 )
 
@@ -82,9 +82,11 @@ func buildCookieHeader(auth *Auth) string {
 
 func doGraphQL(ctx context.Context, auth *Auth, operationName, query string, variables map[string]any) (json.RawMessage, error) {
 	body := map[string]any{
-		"operationName": operationName,
-		"query":         query,
-		"variables":     variables,
+		"query":     query,
+		"variables": variables,
+	}
+	if operationName != "" {
+		body["operationName"] = operationName
 	}
 	bodyBytes, _ := json.Marshal(body)
 
@@ -297,16 +299,13 @@ func cmdBasket(ctx context.Context) {
 						sku id quantity
 						details { sku title subtitle }
 					}
-					calculation {
-						totals { subTotal { amount } }
-					}
 				}
 			}
 			... on BasketError { errorMessage reason }
 		}
 	}`
 
-	data, err := doGraphQL(ctx, auth, "BasketPageActiveBasket", gql, nil)
+	data, err := doGraphQL(ctx, auth, "", gql, nil)
 	if err != nil {
 		fatal("Basket query failed: %v", err)
 	}
