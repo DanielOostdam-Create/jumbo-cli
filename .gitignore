@@ -1,0 +1,16 @@
+jumbo-cli
+jumbo
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+config.json
+auth.json
+.env
+.DS_Store
+*.capture
+*.pcap
+*.har
