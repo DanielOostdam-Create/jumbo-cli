@@ -257,34 +257,18 @@ func cmdLogin(ctx context.Context) {
 
 func cmdSearch(ctx context.Context, args []string) {
 	if len(args) < 1 {
-		fatal("Usage: jumbo search <query>")
-	}
-	auth := mustAuth()
-	searchTerm := strings.Join(args, " ")
-
-	// Sanitize
-	searchTerm = strings.ReplaceAll(searchTerm, `"`, "")
-	searchTerm = strings.ReplaceAll(searchTerm, `\`, "")
-
-	gql := `query SearchProducts($input: ProductSearchInput!) {
-		searchProducts(input: $input) {
-			products { sku title subtitle }
-		}
-	}`
-
-	vars := map[string]any{
-		"input": map[string]any{
-			"searchTerms": searchTerm,
-			"searchType":  "PRODUCTS",
-		},
+		fatal("Usage: jumbo search <query>\n\nNote: Jumbo's web GraphQL search requires store context.\nFor product search and price comparison, use the nl-supermarkt MCP instead:\n  mcp__nl-supermarkt__zoek_producten with supermarkt filter 'Jumbo'\n\nThis command will be updated when the search API is fully mapped.")
 	}
 
-	data, err := doGraphQL(ctx, auth, "SearchProducts", gql, vars)
-	if err != nil {
-		fatal("Search failed: %v", err)
-	}
-
-	printJSON(data)
+	// Jumbo's web search requires store context and uses SSR (server-side rendering).
+	// The GraphQL searchProducts endpoint returns 400 without proper store context.
+	// For now, point users to nl-supermarkt MCP which has full Jumbo product data.
+	fmt.Fprintf(os.Stderr, "Jumbo product search via GraphQL is not yet supported.\n")
+	fmt.Fprintf(os.Stderr, "The web API requires store context that we haven't fully mapped.\n\n")
+	fmt.Fprintf(os.Stderr, "Alternatives:\n")
+	fmt.Fprintf(os.Stderr, "  - Use nl-supermarkt MCP: mcp__nl-supermarkt__zoek_producten (filter: Jumbo)\n")
+	fmt.Fprintf(os.Stderr, "  - Use /grocery skill for cross-store price comparison\n")
+	os.Exit(1)
 }
 
 func cmdBasket(ctx context.Context) {
